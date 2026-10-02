@@ -1,3 +1,20 @@
 package io.github.briangits.persistence.uow
 
-typealias UowFactory<T> = () -> T
+import io.github.briangits.persistence.Persistence
+import io.github.briangits.persistence.transaction.Transaction
+
+class UoWFactory<T : UnitOfWork<T>>(private val factory: () -> T) {
+
+    constructor(
+        persistence: Persistence,
+        factory: (Transaction) -> T
+    ) : this(factory = { factory(persistence.createTransaction()) })
+
+    fun create(): T = factory()
+
+    operator fun invoke(): T = create()
+
+    suspend operator fun <R> invoke(block: suspend T.() -> R): R =
+        create().run(block)
+
+}
