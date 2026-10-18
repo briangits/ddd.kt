@@ -32,7 +32,7 @@ abstract class UnitOfWork<T : UnitOfWork<T>>(
 
     suspend fun rollback() = transaction.rollback()
 
-    suspend fun <R> execute(block: suspend T.() -> R): R {
+    suspend inline fun <R> execute(block: suspend T.() -> R): R {
         return try {
             @Suppress("UNCHECKED_CAST")
             block( this as T)
@@ -44,7 +44,7 @@ abstract class UnitOfWork<T : UnitOfWork<T>>(
         }
     }
 
-    suspend fun <R> run(block: suspend T.() -> R): R =
+    suspend inline fun <R> run(block: suspend T.() -> R): R =
         execute(block).also { commit() }
 
 }

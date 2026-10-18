@@ -14,7 +14,7 @@ class UoWFactory<T : UnitOfWork<T>>(private val factory: () -> T) {
 
     operator fun invoke(): T = create()
 
-    suspend operator fun <R> invoke(block: suspend T.() -> R): R =
+    suspend inline operator fun <R> invoke(block: suspend T.() -> R): R =
         create().run(block)
 
 }
