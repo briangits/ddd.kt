@@ -1,88 +1,59 @@
 package io.github.briangits.persistence.exposed.repository
 
+import io.github.briangits.persistence.exposed.query.build
 import io.github.briangits.persistence.exposed.query.filters.compile
-import io.github.briangits.persistence.exposed.relations.set
 import io.github.briangits.persistence.exposed.transaction.TransactionControl
-import io.github.briangits.persistence.query.Pagination
-import io.github.briangits.persistence.query.filters.FilterBuilder
-import io.github.briangits.persistence.query.pagination.Paginated
-import io.github.briangits.persistence.query.properties.Properties
-import io.github.briangits.persistence.repository.BaseRepository
+import io.github.briangits.persistence.query.QueryBlock
+import io.github.briangits.persistence.query.filters.Filters
+import io.github.briangits.persistence.repository.Entity
+import io.github.briangits.persistence.repository.EntityProperties
+import io.github.briangits.persistence.repository.Repository
 import org.jetbrains.exposed.v1.core.Table
+import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
-import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.upsert
 
-interface ExposedRepository<
+abstract class ExposedRepository<
     TTable : Table,
-    T : Any,
-    TProperties : Properties<T, TProperties>
-> : BaseRepository<T, TProperties> {
-    val table: TTable
-    val operator: EntityOperator<T>
+    T : Entity<Any>,
+    TProperties : EntityProperties<T, Any>
+>(
+    protected val transaction: TransactionControl,
+    protected val table: TTable,
+    protected val operator: EntityOperator<T, TProperties>
+): Repository<T, TProperties> {
 
-    val transaction: TransactionControl
+    protected fun Query.build(block: QueryBlock<TProperties>) = build(block, operator)
 
-    private fun TProperties.compile() = this.compile(operator.relations, properties)
-    private fun FilterBuilder<TProperties>.compile() = properties().apply(this).compile()
-
-    override suspend fun count(block: FilterBuilder<TProperties>): Long =
+    override suspend fun count(block: QueryBlock<TProperties>): Long =
         transaction.execute {
             table.selectAll()
-                .where { block.compile() }
+                .build(block)
                 .count()
         }
 
-    override suspend fun exists(block: FilterBuilder<TProperties>): Boolean =
+    override suspend fun exists(block: QueryBlock<TProperties>): Boolean =
         transaction.execute {
             !table.selectAll()
-                .where { block.compile() }
+                .build(block)
                 .empty()
         }
 
-    override suspend fun find(block: FilterBuilder<TProperties>): T? =
+    override suspend fun find(block: QueryBlock<TProperties>): T? =
         transaction.execute {
             table.selectAll()
-                .where { block.compile() }
+                .build(block)
                 .limit(1)
                 .singleOrNull()
                 ?.let { operator.fromDB(it) }
         }
 
-    override suspend fun findAll(block: FilterBuilder<TProperties>): List<T> =
+    override suspend fun findAll(block: QueryBlock<TProperties>): List<T> =
         transaction.execute {
             table.selectAll()
-                .where { block.compile() }
+                .build(block)
                 .map { operator.fromDB(it) }
-        }
-
-    override suspend fun findAll(
-        pagination: Pagination,
-        block: FilterBuilder<TProperties>
-    ): Paginated<T> =
-        transaction.execute {
-            val offset = pagination.offset
-            val limit = pagination.limit
-
-            val filters = block.compile()
-
-            val query = table.select(table.columns)
-                .where { filters }
-                .offset(offset)
-
-            val limitedQuery = if (limit != null) query.limit(limit) else query
-
-            val items = limitedQuery.map { operator.fromDB(it) }
-            val total = when {
-                limit == null -> items.size.toLong()
-                items.size < limit && items.isNotEmpty() -> offset + items.size.toLong()
-                else -> table.selectAll()
-                    .where { filters }
-                    .count()
-            }
-
-            Paginated(offset, limit, total, items)
         }
 
     override suspend fun save(entity: T): T {
@@ -99,8 +70,10 @@ interface ExposedRepository<
 
     override suspend fun delete(entity: T) {
         transaction.execute {
-            val filter = properties().apply { id(this, entity) }
-            table.deleteWhere(limit = 1) { filter.compile() }
+            table.deleteWhere(limit = 1) {
+                Filters { operator.properties().id eq entity.id }
+                    .compile(operator.relations)
+            }
         }
     }
 }

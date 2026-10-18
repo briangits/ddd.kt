@@ -1,18 +1,24 @@
 package io.github.briangits.persistence.exposed.repository
 
-import io.github.briangits.persistence.exposed.relations.PropertyColumnRelations
-import io.github.briangits.persistence.query.properties.property.AnyProperty
+import io.github.briangits.persistence.exposed.relations.Relations
+import io.github.briangits.persistence.query.properties.Property
+import io.github.briangits.persistence.repository.Entity
+import io.github.briangits.persistence.repository.EntityProperties
 import org.jetbrains.exposed.v1.core.ResultRow
 
-interface EntityOperator<T : Any> {
+interface EntityOperator<T : Entity<*>, TProperties : EntityProperties<T, Any>> {
+    val properties: () -> TProperties
+
     val fromDB: (ResultRow) -> T
 
-    val relations: PropertyColumnRelations
+    val relations: Relations<T>
 
-    operator fun <T> ResultRow.get(path: AnyProperty<T>): T =
-        this[relations[path]]
+    operator fun <V> ResultRow.get(property: Property<T, V>): V =
+        relations[property].get(this)
 
-    fun fromDB(block: (ResultRow) -> T): (ResultRow) -> T =
-        block
+    fun properties(factory: () -> TProperties) = factory
 
+    fun fromDB(block: (ResultRow) -> T) = block
+
+    fun relations(block: Relations<T>.() -> Unit): Relations<T> = Relations(block)
 }

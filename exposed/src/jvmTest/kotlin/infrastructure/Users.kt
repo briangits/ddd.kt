@@ -1,4 +1,4 @@
-package infrustructure
+package infrastructure
 
 import org.jetbrains.exposed.v1.core.Table
 

@@ -4,7 +4,8 @@ import closeDB
 import createDB
 import domain.PersonName
 import domain.User
-import infrustructure.ExposedUserRepository
+import infrastructure.ExposedUserRepository
+import io.github.briangits.persistence.query.where
 import io.github.briangits.persistence.repository.save
 import org.junit.Test
 import runInTransaction
@@ -29,7 +30,7 @@ class DeleteTests {
 
             assertNull(
                 repository.find {
-                    id eq user.id
+                    where { id eq user.id }
                 }
             )
 
@@ -60,11 +61,11 @@ class DeleteTests {
 
             assertNull(
                 repository.find {
-                    id eq user1.id
+                    where { id eq user1.id}
                 }
             )
 
-            assertEquals(user2, repository.find { id eq user2.id })
+            assertEquals(user2, repository.find { where { id eq user2.id } })
 
             closeDB(db)
         }

@@ -2,8 +2,9 @@
 import domain.PersonName
 import domain.User
 import domain.UserRepository
-import infrustructure.ExposedUserRepository
+import infrastructure.ExposedUserRepository
 import io.github.briangits.persistence.exposed.ExposedPersistence
+import io.github.briangits.persistence.query.where
 import io.github.briangits.persistence.repository.get
 import io.github.briangits.persistence.repository.save
 import kotlinx.coroutines.Dispatchers
@@ -67,7 +68,7 @@ class ExposedPersistenceTest {
             val repository = get<UserRepository>()
 
             return@transaction repository.find {
-                id eq user.id
+                where { id eq user.id }
             }
         }
 
@@ -102,7 +103,7 @@ class ExposedPersistenceTest {
 
             assertNull(
                 repository.find {
-                    id eq user!!.id
+                    where { id eq user!!.id }
                 }
             )
         }

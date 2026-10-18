@@ -1,37 +1,22 @@
 
+import domain.User
 import domain.UserProperties
 import domain.UserProperties.name
-import infrustructure.UserEntityOperator
-import infrustructure.Users
+import infrastructure.UserEntityOperator
+import infrastructure.Users
 import io.github.briangits.persistence.exposed.query.filters.compile
-import io.github.briangits.persistence.query.properties.property.explode
+import io.github.briangits.persistence.query.filters.FilterBlock
+import io.github.briangits.persistence.query.filters.Filters
+import io.github.briangits.persistence.query.properties.explode
 import org.h2.Driver
-import org.jetbrains.exposed.v1.core.LikePattern
-import org.jetbrains.exposed.v1.core.Op
-import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.between
-import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.core.greater
-import org.jetbrains.exposed.v1.core.greaterEq
-import org.jetbrains.exposed.v1.core.inList
-import org.jetbrains.exposed.v1.core.isNotNull
-import org.jetbrains.exposed.v1.core.isNull
-import org.jetbrains.exposed.v1.core.less
-import org.jetbrains.exposed.v1.core.lessEq
-import org.jetbrains.exposed.v1.core.like
-import org.jetbrains.exposed.v1.core.neq
-import org.jetbrains.exposed.v1.core.not
-import org.jetbrains.exposed.v1.core.notInList
-import org.jetbrains.exposed.v1.core.or
-import org.jetbrains.exposed.v1.core.regexp
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private fun createFilters(block: UserProperties.() -> Unit) =
-    UserProperties().apply(block)
-        .compile(UserEntityOperator.relations) { UserProperties() }
+private fun createFilters(block: FilterBlock<User>) =
+    Filters(block).compile(UserEntityOperator.relations)
 
 class FilterCompilerTests {
     val relations = UserEntityOperator.relations
@@ -41,7 +26,8 @@ class FilterCompilerTests {
         driver = Driver::class.qualifiedName!!
     )
 
-    fun runTestInTransaction(test: () -> Unit) = transaction(db) { test() }
+    fun runTestInTransaction(test: UserProperties.() -> Unit) =
+        transaction(db) { UserProperties().test() }
 
     @Test
     fun `equality operators`() = runTestInTransaction {

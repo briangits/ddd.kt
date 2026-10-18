@@ -4,7 +4,8 @@ import closeDB
 import createDB
 import domain.PersonName
 import domain.User
-import infrustructure.ExposedUserRepository
+import infrastructure.ExposedUserRepository
+import io.github.briangits.persistence.query.where
 import io.github.briangits.persistence.repository.save
 import org.junit.Test
 import runInTransaction
@@ -28,7 +29,7 @@ class ExistsTests {
 
             assertTrue(
                 repository.exists {
-                    id eq user.id
+                    where { id eq user.id }
                 }
             )
 
@@ -42,7 +43,7 @@ class ExistsTests {
 
             assertFalse(
                 repository.exists {
-                    id eq Uuid.random()
+                    where { id eq Uuid.random() }
                 }
             )
 
