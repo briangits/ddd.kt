@@ -31,6 +31,14 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "persistence-kt"
 
+include(":query")
+include(":query:properties")
+include(":query:filters")
+
+include(":repository")
+
+include(":transaction")
+
 include(":core")
 include(":unit-of-work")
 
