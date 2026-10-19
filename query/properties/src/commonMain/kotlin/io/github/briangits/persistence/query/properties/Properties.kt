@@ -7,9 +7,11 @@ import kotlin.reflect.KProperty1
 open class Properties<T : Any> : BaseProperties<T> {
     val attributes = Attributes()
 
-    operator fun <V> KProperty1<T, V>.getValue(
-        thisRef: Any?,
+    operator fun <V> KProperty1<T, V>.provideDelegate(
+        thisRef: Properties<T>,
         property: KProperty<*>
-    ): Property<T, V> =
-        Property(listOf(this)) { this.get(it) }
+    ): ReadOnlyProperty<Properties<T>, Property<T, V>> =
+        ReadOnlyProperty { _, _ ->
+            Property(this)
+        }
 }
