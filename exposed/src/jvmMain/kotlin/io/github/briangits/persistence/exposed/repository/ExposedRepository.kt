@@ -11,7 +11,11 @@ import io.github.briangits.persistence.query.filters.eq
 import io.github.briangits.persistence.repository.Entity
 import io.github.briangits.persistence.repository.EntityProperties
 import io.github.briangits.persistence.repository.Repository
-import org.jetbrains.exposed.v1.core.Table
+import io.github.briangits.persistence.repository.pagination.Page
+import io.github.briangits.persistence.repository.pagination.Pagination
+import org.jetbrains.exposed.v1.core.Count
+import org.jetbrains.exposed.v1.core.alias
+import org.jetbrains.exposed.v1.core.stringLiteral
 import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.select
@@ -59,6 +63,28 @@ abstract class ExposedRepository<
             .build(block)
             .let { if (lock) it.forUpdate() else it }
             .map { operator.fromDB(it) }
+    }
+
+    override suspend fun findAll(
+        page: Pagination,
+        block: QueryBlock<T, TProperties>
+    ): Page<T> = transaction.execute {
+        val count = Count(stringLiteral("*")).over().alias("count")
+
+        val query = table.selectAll()
+            .build(block)
+
+        val rows = query.copy()
+            .adjustSelect { select(it.fields + count) }
+            .limit(page.size)
+            .offset(page.offset)
+            .toList()
+
+        val total = rows.firstOrNull()?.get(count)
+            ?: if (page.offset > 0) query.count() else 0L
+        val items = rows.map { operator.fromDB(it) }
+
+        Page(page, total, items)
     }
 
     override suspend fun save(entity: T): T {

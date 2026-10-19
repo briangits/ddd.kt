@@ -18,6 +18,7 @@ kotlin {
         commonMain.dependencies {
             api(projects.query.properties)
             api(projects.query.filters)
+            api(projects.query.pagination)
         }
     }
 }

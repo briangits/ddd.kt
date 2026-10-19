@@ -34,12 +34,14 @@ rootProject.name = "persistence-kt"
 include(":query")
 include(":query:properties")
 include(":query:filters")
+include(":query:pagination")
 
 include(":repository")
 
 include(":transaction")
 
 include(":core")
+
 include(":unit-of-work")
 
 include(":exposed")
