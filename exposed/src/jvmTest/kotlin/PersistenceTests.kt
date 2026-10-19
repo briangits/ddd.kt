@@ -1,12 +1,13 @@
 
-import domain.PersonName
-import domain.User
-import domain.UserRepository
-import infrastructure.ExposedUserRepository
+import domain.user.PersonName
+import domain.user.User
+import domain.user.UserRepository
+import infrastructure.user.ExposedUserRepository
 import io.github.briangits.persistence.exposed.ExposedPersistence
-import io.github.briangits.persistence.query.where
+import io.github.briangits.persistence.query.filters.eq
 import io.github.briangits.persistence.repository.get
 import io.github.briangits.persistence.repository.save
+import io.github.briangits.persistence.transaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -67,9 +68,7 @@ class ExposedPersistenceTest {
         val found = persistence.transaction {
             val repository = get<UserRepository>()
 
-            return@transaction repository.find {
-                where { id eq user.id }
-            }
+            repository.find { id eq user.id }
         }
 
         assertEquals(user, found)
@@ -103,7 +102,7 @@ class ExposedPersistenceTest {
 
             assertNull(
                 repository.find {
-                    where { id eq user!!.id }
+                    id eq user!!.id
                 }
             )
         }

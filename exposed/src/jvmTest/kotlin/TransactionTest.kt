@@ -1,10 +1,10 @@
 
-import domain.PersonName
-import domain.User
-import domain.UserRepository
-import infrastructure.ExposedUserRepository
+import domain.user.PersonName
+import domain.user.User
+import domain.user.UserRepository
+import infrastructure.user.ExposedUserRepository
 import io.github.briangits.persistence.exposed.transaction.ExposedTransaction
-import io.github.briangits.persistence.query.where
+import io.github.briangits.persistence.query.filters.eq
 import io.github.briangits.persistence.repository.get
 import io.github.briangits.persistence.repository.save
 import kotlinx.coroutines.test.runTest
@@ -41,7 +41,7 @@ class TransactionTest {
         runInTransaction(db) { control, _ ->
             val repository = ExposedUserRepository(control)
 
-            val found = repository.find { where { id eq user.id } }
+            val found = repository.find { id eq user.id }
 
             assertEquals(user, found)
         }
@@ -68,7 +68,7 @@ class TransactionTest {
 
             assertNull(
                 repository.find {
-                    where { id eq user.id }
+                     id eq user.id
                 }
             )
         }

@@ -1,4 +1,4 @@
-package domain
+package domain.user
 
 import io.github.briangits.persistence.repository.Repository
 

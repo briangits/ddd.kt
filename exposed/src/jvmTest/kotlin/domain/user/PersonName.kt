@@ -1,4 +1,4 @@
-package domain
+package domain.user
 
 data class PersonName(
     val first: String,

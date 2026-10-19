@@ -1,15 +1,14 @@
-package infrastructure
+package infrastructure.user
 
-import domain.User
-import domain.UserProperties
-import domain.UserRepository
+import domain.user.User
+import domain.user.UserProperties
+import domain.user.UserRepository
 import io.github.briangits.persistence.exposed.repository.ExposedRepository
 import io.github.briangits.persistence.exposed.transaction.TransactionControl
 
 class ExposedUserRepository(
     transaction: TransactionControl
-) : UserRepository, ExposedRepository<Users, User, UserProperties>(
+) : UserRepository, ExposedRepository<User, UserProperties>(
     transaction = transaction,
-    table = Users,
     operator = UserEntityOperator
 )

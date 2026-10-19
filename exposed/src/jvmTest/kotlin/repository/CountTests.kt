@@ -2,10 +2,10 @@ package repository
 
 import closeDB
 import createDB
-import domain.PersonName
-import domain.User
-import infrastructure.ExposedUserRepository
-import io.github.briangits.persistence.query.where
+import domain.user.PersonName
+import domain.user.User
+import infrastructure.user.ExposedUserRepository
+import io.github.briangits.persistence.query.filters.eq
 import io.github.briangits.persistence.repository.save
 import org.junit.Test
 import runInTransaction
@@ -71,7 +71,7 @@ class CountTests {
                 )
             }
 
-            assertEquals(2, repository.count { where { age eq 25 } })
+            assertEquals(2, repository.count { age eq 25 })
 
             closeDB(db)
         }

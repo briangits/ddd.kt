@@ -1,33 +1,67 @@
 
-import domain.User
-import domain.UserProperties
-import domain.UserProperties.name
-import infrastructure.UserEntityOperator
-import infrastructure.Users
+import domain.user.User
+import domain.user.UserProperties
+import domain.user.UserProperties.name
+import infrastructure.user.UserEntityOperator
+import infrastructure.user.Users
 import io.github.briangits.persistence.exposed.query.filters.compile
 import io.github.briangits.persistence.query.filters.FilterBlock
 import io.github.briangits.persistence.query.filters.Filters
+import io.github.briangits.persistence.query.filters.allOf
+import io.github.briangits.persistence.query.filters.contains
+import io.github.briangits.persistence.query.filters.endsWith
+import io.github.briangits.persistence.query.filters.eq
+import io.github.briangits.persistence.query.filters.gt
+import io.github.briangits.persistence.query.filters.gte
+import io.github.briangits.persistence.query.filters.includedIn
+import io.github.briangits.persistence.query.filters.isNotNull
+import io.github.briangits.persistence.query.filters.isNull
+import io.github.briangits.persistence.query.filters.lt
+import io.github.briangits.persistence.query.filters.lte
+import io.github.briangits.persistence.query.filters.matches
+import io.github.briangits.persistence.query.filters.neq
+import io.github.briangits.persistence.query.filters.not
+import io.github.briangits.persistence.query.filters.notIn
+import io.github.briangits.persistence.query.filters.oneOf
+import io.github.briangits.persistence.query.filters.startsWith
 import io.github.briangits.persistence.query.properties.explode
 import org.h2.Driver
-import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.LikePattern
+import org.jetbrains.exposed.v1.core.Op
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greater
+import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.inList
+import org.jetbrains.exposed.v1.core.isNotNull
+import org.jetbrains.exposed.v1.core.isNull
+import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.core.lessEq
+import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.not
+import org.jetbrains.exposed.v1.core.notInList
+import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.core.regexp
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private fun createFilters(block: FilterBlock<User>) =
-    Filters(block).compile(UserEntityOperator.relations)
+private fun createFilters(block: FilterBlock<User, UserProperties>) =
+    context(UserEntityOperator.relations) {
+        Filters<User> { UserProperties.block() }
+            .compile()
+    }
 
 class FilterCompilerTests {
-    val relations = UserEntityOperator.relations
-
     val db = Database.connect(
         url = "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;",
         driver = Driver::class.qualifiedName!!
     )
 
     fun runTestInTransaction(test: UserProperties.() -> Unit) =
-        transaction(db) { UserProperties().test() }
+        transaction(db) { UserProperties.test() }
 
     @Test
     fun `equality operators`() = runTestInTransaction {
@@ -50,7 +84,6 @@ class FilterCompilerTests {
             age gte 18
             age lt 40
             age lte 35
-            age.between(18, 65)
         }
 
         val expected = Op.TRUE
@@ -58,7 +91,6 @@ class FilterCompilerTests {
             .and(Users.age greaterEq 18)
             .and(Users.age less 40)
             .and(Users.age lessEq 35)
-            .and(Users.age.between(18, 65))
 
         assertEquals(expected.toString(), filters.toString())
     }
@@ -106,7 +138,7 @@ class FilterCompilerTests {
     @Test
     fun `array operators`() = runTestInTransaction {
         val filters = createFilters {
-            age `in` listOf(20, 30)
+            age includedIn listOf(20, 30)
             age notIn listOf(10, 40)
         }
 

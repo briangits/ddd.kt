@@ -1,5 +1,5 @@
 
-import infrastructure.Users
+import infrastructure.user.Users
 import io.github.briangits.persistence.exposed.transaction.TransactionControl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest

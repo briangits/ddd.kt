@@ -11,7 +11,7 @@ data class User(
     val age: Int
 )
 
-class UserProperties : Properties<User>() {
+object UserProperties : Properties<User>() {
     val id by User::id
     object name : explode<User, PersonName>(User::name) {
         val first by PersonName::first

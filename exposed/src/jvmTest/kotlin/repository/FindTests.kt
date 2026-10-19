@@ -2,10 +2,11 @@ package repository
 
 import closeDB
 import createDB
-import domain.PersonName
-import domain.User
-import infrastructure.ExposedUserRepository
-import io.github.briangits.persistence.query.where
+import domain.user.PersonName
+import domain.user.User
+import infrastructure.user.ExposedUserRepository
+import io.github.briangits.persistence.query.dsl.where
+import io.github.briangits.persistence.query.filters.eq
 import io.github.briangits.persistence.repository.save
 import org.junit.Test
 import runInTransaction
@@ -28,7 +29,7 @@ class FindTests {
                 )
             }
 
-            val found = repository.find { where { id eq user.id } }
+            val found = repository.find { id eq user.id }
 
             assertEquals(user, found)
 
@@ -62,7 +63,7 @@ class FindTests {
                 )
             }
 
-            val found = repository.find { where { age eq 20 } }
+            val found = repository.find { age eq 20 }
 
             assertEquals(user1, found)
 
@@ -74,7 +75,7 @@ class FindTests {
         runInTransaction(createDB()) { control, db ->
             val repository = ExposedUserRepository(control)
 
-            val found = repository.find { where { id eq Uuid.random() } /* What are the odds */ }
+            val found = repository.find { id eq Uuid.random() /* What are the odds */ }
 
             assertNull(found)
 
@@ -123,7 +124,7 @@ class FindTests {
         runInTransaction(createDB()) { control, db ->
             val repository = ExposedUserRepository(control)
 
-            val found = repository.findAll { where { id eq Uuid.random() } /* What are the odds */ }
+            val found = repository.findAll { where { id eq Uuid.random() /* What are the odds */ } }
 
             assertTrue(found.isEmpty())
 
