@@ -1,21 +1,24 @@
 package io.github.briangits.persistence.exposed.repository
 
 import io.github.briangits.persistence.exposed.query.build
+import io.github.briangits.persistence.exposed.query.filters.build
 import io.github.briangits.persistence.exposed.query.filters.compile
 import io.github.briangits.persistence.exposed.transaction.TransactionControl
-import io.github.briangits.persistence.query.QueryBlock
+import io.github.briangits.persistence.query.dsl.QueryBlock
+import io.github.briangits.persistence.query.filters.FilterBlock
 import io.github.briangits.persistence.query.filters.Filters
+import io.github.briangits.persistence.query.filters.eq
 import io.github.briangits.persistence.repository.Entity
 import io.github.briangits.persistence.repository.EntityProperties
 import io.github.briangits.persistence.repository.Repository
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.Query
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.upsert
 
 abstract class ExposedRepository<
-    TTable : Table,
     T : Entity<Any>,
     TProperties : EntityProperties<T, Any>
 >(
@@ -24,37 +27,39 @@ abstract class ExposedRepository<
 ): Repository<T, TProperties> {
     protected val table = operator.relations.table
 
-    protected fun Query.build(block: QueryBlock<TProperties>) = build(block, operator)
-
-    override suspend fun count(block: QueryBlock<TProperties>): Long =
+    override suspend fun count(block: FilterBlock<T, TProperties>): Long =
         transaction.execute {
             table.selectAll()
                 .build(block)
                 .count()
         }
 
-    override suspend fun exists(block: QueryBlock<TProperties>): Boolean =
+    override suspend fun exists(block: FilterBlock<T, TProperties>): Boolean =
         transaction.execute {
             !table.selectAll()
                 .build(block)
                 .empty()
         }
 
-    override suspend fun find(block: QueryBlock<TProperties>): T? =
+    override suspend fun find(lock: Boolean, block: FilterBlock<T, TProperties>): T? =
         transaction.execute {
             table.selectAll()
                 .build(block)
+                .let { if (lock) it.forUpdate() else it }
                 .limit(1)
                 .singleOrNull()
                 ?.let { operator.fromDB(it) }
         }
 
-    override suspend fun findAll(block: QueryBlock<TProperties>): List<T> =
-        transaction.execute {
-            table.selectAll()
-                .build(block)
-                .map { operator.fromDB(it) }
-        }
+    override suspend fun findAll(
+        lock: Boolean,
+        block: QueryBlock<T, TProperties>
+    ): List<T> = transaction.execute {
+        table.selectAll()
+            .build(block)
+            .let { if (lock) it.forUpdate() else it }
+            .map { operator.fromDB(it) }
+    }
 
     override suspend fun save(entity: T): T {
         transaction.execute {
@@ -71,9 +76,29 @@ abstract class ExposedRepository<
     override suspend fun delete(entity: T) {
         transaction.execute {
             table.deleteWhere(limit = 1) {
-                Filters { operator.properties().id eq entity.id }
-                    .compile(operator.relations)
+                context(operator.relations) {
+                    Filters { operator.properties().id eq entity.id }
+                        .compile()
+                }
             }
         }
+    }
+
+    @JvmName("buildFilterBlock")
+    protected fun Query.build(block: FilterBlock<T, TProperties>): Query {
+        val filter = context(operator.relations, operator.properties) {
+            block.build()
+        }
+
+        return where { filter }
+    }
+
+    @JvmName("buildQueryBlock")
+    protected fun Query.build(block: QueryBlock<T, TProperties>): Query {
+        val query = context(operator.relations, operator.properties) {
+            block.build()
+        }
+
+        return where { query.where }
     }
 }
