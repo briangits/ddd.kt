@@ -8,12 +8,10 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.reflect.KClass
 
 interface PersistenceBuilder {
-
     fun <T : Repository<*, *>> bind(
         type: KClass<T>,
         implementation: RepositoryImplementation<T>
     )
-
 }
 
 inline fun <reified T : Repository<*, *>> PersistenceBuilder.bind(
@@ -39,5 +37,4 @@ internal class PersistenceBuilderImpl(
     }
 
     fun build(): ExposedPersistence = ExposedPersistence(database, registry, dispatcher)
-
 }
