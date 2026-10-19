@@ -20,9 +20,9 @@ abstract class ExposedRepository<
     TProperties : EntityProperties<T, Any>
 >(
     protected val transaction: TransactionControl,
-    protected val table: TTable,
     protected val operator: EntityOperator<T, TProperties>
 ): Repository<T, TProperties> {
+    protected val table = operator.relations.table
 
     protected fun Query.build(block: QueryBlock<TProperties>) = build(block, operator)
 

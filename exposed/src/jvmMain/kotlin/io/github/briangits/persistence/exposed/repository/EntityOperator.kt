@@ -5,6 +5,7 @@ import io.github.briangits.persistence.query.properties.Property
 import io.github.briangits.persistence.repository.Entity
 import io.github.briangits.persistence.repository.EntityProperties
 import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Table
 
 interface EntityOperator<T : Entity<*>, TProperties : EntityProperties<T, Any>> {
     val properties: () -> TProperties
@@ -18,7 +19,12 @@ interface EntityOperator<T : Entity<*>, TProperties : EntityProperties<T, Any>> 
 
     fun properties(factory: () -> TProperties) = factory
 
-    fun fromDB(block: (ResultRow) -> T) = block
+    fun fromDB(block: TProperties.(ResultRow) -> T) =
+        { row: ResultRow -> block(properties(), row) }
 
-    fun relations(block: Relations<T>.() -> Unit): Relations<T> = Relations(block)
+    fun <TTable : Table> relations(
+        table: TTable,
+        block: context(Relations<T>) TProperties.(TTable) -> Unit
+    ): Relations<T> =
+        Relations(table) { block(properties(), table) }
 }
