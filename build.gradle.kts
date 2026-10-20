@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "io.github.briangits.persistence"
-version = "0.4.4-SNAPSHOT"
+version = "0.4.0"
 
 allprojects {
     group = rootProject.group
