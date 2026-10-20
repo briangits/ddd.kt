@@ -2,7 +2,7 @@ plugins {
     `version-catalog`
 
     // Publishing
-    id("io.github.briangits.persistence.conventions.publishing")
+    id("conventions.publishing")
 }
 
 
@@ -22,5 +22,5 @@ catalog {
 
 library {
     name = "version-catalog"
-    description = "A verison catalog for persistence.kt"
+    description = "A version catalog for persistence.kt"
 }

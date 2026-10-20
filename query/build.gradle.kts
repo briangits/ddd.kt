@@ -22,3 +22,8 @@ kotlin {
         }
     }
 }
+
+library {
+    name = "query"
+    description = "Query DSL for persistence.kt"
+}

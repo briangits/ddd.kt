@@ -13,3 +13,8 @@ kotlin {
         }
     }
 }
+
+library {
+    name = "transaction"
+    description = "Transaction API for persistence.kt"
+}

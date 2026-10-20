@@ -2,7 +2,7 @@ plugins {
     id("conventions.library.kmp")
 
     // Publishing
-    id("io.github.briangits.persistence.conventions.publishing")
+    id("conventions.publishing")
 }
 
 kotlin {

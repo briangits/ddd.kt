@@ -7,7 +7,7 @@ plugins {
     alias(kt.plugins.multiplatform.android)
 
     // Publishing
-    id("io.github.briangits.persistence.conventions.publishing")
+    id("conventions.publishing")
 }
 
 kotlin {

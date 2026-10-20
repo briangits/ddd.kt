@@ -11,7 +11,6 @@ plugins {
 
     // Publishing
     alias(libutils.plugins.mavenPublish) apply false
-    id("io.github.briangits.persistence.conventions.publishing") apply false
 }
 
 group = "io.github.briangits.persistence"

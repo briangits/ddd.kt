@@ -10,3 +10,8 @@ kotlin {
         }
     }
 }
+
+library {
+    name = "query-filters"
+    description = "Query filters for persistence.kt"
+}

@@ -6,3 +6,8 @@ kotlin {
         }
     }
 }
+
+library {
+    name = "query-properties"
+    description = "Query properties for persistence.kt"
+}

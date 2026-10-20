@@ -2,7 +2,7 @@ plugins {
     alias(kt.plugins.multiplatform)
 
     // Publishing
-    id("io.github.briangits.persistence.conventions.publishing")
+    id("conventions.publishing")
 }
 
 kotlin {
@@ -35,5 +35,5 @@ kotlin {
 
 library {
     name = "exposed"
-    description = "Persistence API implememntation with Exposed for persistence.kt"
+    description = "Persistence API implementation with Exposed for persistence.kt"
 }

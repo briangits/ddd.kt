@@ -13,3 +13,8 @@ kotlin {
         }
     }
 }
+
+library {
+    name = "repository"
+    description = "Repository API for persistence.kt"
+}
