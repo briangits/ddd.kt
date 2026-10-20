@@ -43,12 +43,6 @@ val persistence: Persistence = ExposedPersistence(database) {
 The `bind` call tells the adapter which implementation should be used 
 whenever `UserRepository` is requested.
 
-Initialize the persistence layer when your application starts:
-
-```kotlin
-persistence.initialize()
-```
-
 ---
 
 ## Define the Persistence Model
@@ -58,11 +52,14 @@ Domain models need to be mapped to the database's persistence models.
 For example, given the following domain model:
 
 ```kotlin
+import io.github.briangits.persistence.repository.Entity
+import kotlin.uuid.Uuid
+
 data class User(
-    val id: Uuid,
+    override val id: Uuid,
     val name: String,
-    val email: String
-)
+    val email: String?
+) : Entity<Uuid>
 ```
 
 Define the corresponding Exposed table:
@@ -70,10 +67,12 @@ Define the corresponding Exposed table:
 ```kotlin
 import org.jetbrains.exposed.v1.core.Table
 
-object UsersTable : Table("users") {
-    val id = uuid("id").primaryKey()
+object Users : Table("users") {
+    val id = uuid("id")
     val name = varchar("name", 255)
-    val email = varchar("email", 255)
+    val email = varchar("email", 255).nullable()
+
+    override val primaryKey = PrimaryKey(id)
 }
 ```
 
@@ -86,9 +85,8 @@ and does not need to be exposed to the domain layer.
 
 To implement a repository, extend `ExposedRepository` and provide:
 
-1. The Exposed table.
-2. An `EntityOperator` for mapping database rows to domain entities.
-3. Accept a transaction which the repository will be bound to.
+1. An `EntityOperator` for mapping database rows to domain entities.
+2. Accept a transaction which the repository will be bound to.
 
 ### Create an Entity Operator
 
@@ -97,31 +95,30 @@ and how domain properties map to database columns.
 
 ```kotlin
 import io.github.briangits.persistence.exposed.repository.EntityOperator
+import io.github.briangits.persistence.exposed.relations.dsl.by
 
-val userEntityOperator = EntityOperator<UsersTable, User>(
-    fromDB = {
+object UserEntityOperator : EntityOperator<User, UserProperties> {
+    override val properties = properties { UserProperties }
+
+    override val relations = relations(Users) {
+        id by it.id
+        name by it.name
+        email by it.email
+    }
+
+    override val fromDB = fromDB {
         User(
-            id = it[UsersTable.id],
-            name = it[UsersTable.name],
-            email = it[UsersTable.email]
+            id = it[id],
+            name = it[name],
+            email = it[email]
         )
     }
-) {
-    User::id mapsTo UsersTable.id
-    User::name mapsTo UsersTable.name
-    User::email mapsTo UsersTable.email
 }
 ```
 
 The `fromDB` function handles the database-to-domain mapping,
-while the `mapsTo` declarations associate domain properties with their corresponding
+while the `relations` block associates domain properties with their corresponding
 table columns.
-
-You can also define the operator as an `object`:
-
-```kotlin
-object UserEntityOperator : EntityOperator<UsersTable, User>(/* ... */)
-```
 
 ---
 
@@ -134,14 +131,11 @@ import io.github.briangits.persistence.exposed.repository.ExposedRepository
 import io.github.briangits.persistence.exposed.transaction.TransactionControl
 
 class ExposedUserRepository(
-    override val transaction: TransactionControl
-) : UserRepository(), ExposedRepository<UsersTable, User, NewUser, UserFilters> {
-
-    override val table: UsersTable = UsersTable
-
-    override val operator: EntityOperator<UsersTable, User> =
-        userEntityOperator
-}
+    transaction: TransactionControl
+) : UserRepository, ExposedRepository<User, UserProperties>(
+    transaction = transaction,
+    operator = UserEntityOperator
+)
 ```
 
 The `TransactionControl` is provided by the underlying `ExposedPersistence` implementation
@@ -155,15 +149,9 @@ Once the repository has been bound to `ExposedPersistence`,
 it can then be resolved from a transaction:
 
 ```kotlin
-suspend fun createUser(
-    persistence: Persistence,
-    newUser: NewUser
-) {
+suspend fun createUser(persistence: Persistence, user: User) {
     persistence.transaction {
         val users = get<UserRepository>()
-
-        val user = users.create(newUser)
-
         users.save(user)
     }
 }
@@ -181,67 +169,67 @@ import io.github.briangits.persistence.exposed.ExposedPersistence
 import io.github.briangits.persistence.exposed.repository.EntityOperator
 import io.github.briangits.persistence.exposed.repository.ExposedRepository
 import io.github.briangits.persistence.exposed.transaction.TransactionControl
+import io.github.briangits.persistence.exposed.relations.dsl.by
+import io.github.briangits.persistence.repository.Entity
+import io.github.briangits.persistence.repository.EntityProperties
+import io.github.briangits.persistence.repository.Repository
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.Database
-import java.util.UUID
+import kotlin.uuid.Uuid
 
 // Domain layer
 
 data class User(
-    val id: Uuid,
+    override val id: Uuid,
     val name: String,
-    val email: String
-)
+    val email: String?
+) : Entity<Uuid>
 
-data class NewUser(
-    val name: String,
-    val email: String
-)
-
-class UserFilters : Filters<User, UserFilters>(::UserFilters) {
-    val id = User::id
-    val name = User::name
-    val email = User::email
+object UserProperties : EntityProperties<User, Uuid>() {
+    val name by User::name
+    val email by User::email
 }
 
-abstract class UserRepository : Repository<User, NewUser, UserFilters>(
-    id = { id eq it.id },
-    filters = ::UserFilters,
-    create = { User(id = Uuid.randomUUID(), name, email) }
-)
+interface UserRepository : Repository<User, UserProperties>
 
 // Persistence model
 
-object UsersTable : Table("users") {
-    val id = uuid("id").primaryKey()
+object Users : Table("users") {
+    val id = uuid("id")
     val name = varchar("name", 255)
-    val email = varchar("email", 255)
+    val email = varchar("email", 255).nullable()
+
+    override val primaryKey = PrimaryKey(id)
 }
 
 // Entity mapping
 
-val userEntityOperator = EntityOperator<UsersTable, User>(
-    fromDB = {
+object UserEntityOperator : EntityOperator<User, UserProperties> {
+    override val properties = properties { UserProperties }
+
+    override val relations = relations(Users) {
+        id by it.id
+        name by it.name
+        email by it.email
+    }
+
+    override val fromDB = fromDB {
         User(
-            id = it[UsersTable.id],
-            name = it[UsersTable.name],
-            email = it[UsersTable.email]
+            id = it[id],
+            name = it[name],
+            email = it[email]
         )
     }
-) {
-    User::id mapsTo UsersTable.id
-    User::name mapsTo UsersTable.name
-    User::email mapsTo UsersTable.email
 }
 
 // Repository implementation
 
 class ExposedUserRepository(
-    override val transaction: TransactionControl
-) : UserRepository(), ExposedRepository<UsersTable, User, NewUser, UserFilters> {
-    override val table = UsersTable
-    override val operator = userEntityOperator
-}
+    transaction: TransactionControl
+) : UserRepository, ExposedRepository<User, UserProperties>(
+    transaction = transaction,
+    operator = UserEntityOperator
+)
 
 // Persistence configuration
 
@@ -253,6 +241,84 @@ val database = Database.connect(
 val persistence: Persistence = ExposedPersistence(database) {
     bind<UserRepository>(::ExposedUserRepository)
 }
+```
 
-persistence.initialize()
+---
+
+## Nested Properties
+
+For nested domain models, use `explode` in your properties and the `explode` helper in the entity operator.
+
+Given a nested `PersonName`:
+
+```kotlin
+data class PersonName(
+    val first: String,
+    val last: String
+)
+
+data class User(
+    override val id: Uuid,
+    val name: PersonName,
+    val email: String?
+) : Entity<Uuid>
+```
+
+Define the properties with an exploded object:
+
+```kotlin
+import io.github.briangits.persistence.query.properties.explode
+
+object UserProperties : EntityProperties<User, Uuid>() {
+    object name : explode<User, PersonName>(User::name) {
+        val first by PersonName::first
+        val last by PersonName::last
+    }
+    val email by User::email
+}
+```
+
+Define the table with flattened columns:
+
+```kotlin
+object Users : Table("users") {
+    val id = uuid("id")
+    val firstName = varchar("firstName", 255)
+    val lastName = varchar("lastName", 255)
+    val email = varchar("email", 255).nullable()
+
+    override val primaryKey = PrimaryKey(id)
+}
+```
+
+Map the exploded properties in the entity operator:
+
+```kotlin
+import io.github.briangits.persistence.query.properties.explode
+
+object UserEntityOperator : EntityOperator<User, UserProperties> {
+    override val properties = properties { UserProperties }
+
+    override val relations = relations(Users) {
+        id by it.id
+        explode(name) {
+            first by it.firstName
+            last by it.lastName
+        }
+        email by it.email
+    }
+
+    override val fromDB = fromDB {
+        User(
+            id = it[id],
+            name = explode(name) {
+                PersonName(
+                    first = it[first],
+                    last = it[last]
+                )
+            },
+            email = it[email]
+        )
+    }
+}
 ```
