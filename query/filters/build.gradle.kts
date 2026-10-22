@@ -13,5 +13,5 @@ kotlin {
 
 library {
     name = "query-filters"
-    description = "Query filters for persistence.kt"
+    description = "Query filters API for ddd.kt"
 }

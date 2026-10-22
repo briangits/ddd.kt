@@ -5,7 +5,7 @@ plugins {
     `java-gradle-plugin`
 }
 
-group = "io.github.briangits.persistence.conventions"
+group = "io.github.briangits.ddd.conventions"
 version = "0.0.1"
 
 gradlePlugin {

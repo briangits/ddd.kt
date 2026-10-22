@@ -35,5 +35,5 @@ kotlin {
 
 library {
     name = "exposed"
-    description = "Persistence API implementation with Exposed for persistence.kt"
+    description = "Persistence API implementation with Exposed for ddd.kt"
 }

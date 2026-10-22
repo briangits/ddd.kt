@@ -4,9 +4,9 @@ import domain.user.PersonName
 import domain.user.User
 import domain.user.UserProperties
 import domain.user.UserProperties.name
-import io.github.briangits.persistence.exposed.relations.dsl.by
-import io.github.briangits.persistence.exposed.repository.EntityOperator
-import io.github.briangits.persistence.query.properties.explode
+import io.github.briangits.ddd.exposed.relations.dsl.by
+import io.github.briangits.ddd.exposed.repository.EntityOperator
+import io.github.briangits.ddd.query.properties.explode
 
 object UserEntityOperator : EntityOperator<User, UserProperties> {
     override val properties = properties { UserProperties }

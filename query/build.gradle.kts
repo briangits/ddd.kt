@@ -25,5 +25,5 @@ kotlin {
 
 library {
     name = "query"
-    description = "Query DSL for persistence.kt"
+    description = "Query DSL for ddd.kt"
 }

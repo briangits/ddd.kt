@@ -3,11 +3,11 @@ import domain.user.PersonName
 import domain.user.User
 import domain.user.UserRepository
 import infrastructure.user.ExposedUserRepository
-import io.github.briangits.persistence.exposed.ExposedPersistence
-import io.github.briangits.persistence.query.filters.eq
-import io.github.briangits.persistence.repository.get
-import io.github.briangits.persistence.repository.save
-import io.github.briangits.persistence.transaction
+import io.github.briangits.ddd.exposed.ExposedPersistence
+import io.github.briangits.ddd.query.filters.eq
+import io.github.briangits.ddd.repository.get
+import io.github.briangits.ddd.repository.save
+import io.github.briangits.ddd.transaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.exposed.v1.jdbc.Database

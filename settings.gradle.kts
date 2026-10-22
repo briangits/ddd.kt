@@ -29,7 +29,7 @@ dependencyResolutionManagement {
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-rootProject.name = "persistence-kt"
+rootProject.name = "ddd-kt"
 
 include(":query")
 include(":query:properties")

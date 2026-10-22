@@ -1,6 +1,6 @@
-import io.github.briangits.persistence.query.filters.FilterBlock
-import io.github.briangits.persistence.query.filters.Filters
-import io.github.briangits.persistence.query.filters.predicates.AllOf
+import io.github.briangits.ddd.query.filters.FilterBlock
+import io.github.briangits.ddd.query.filters.Filters
+import io.github.briangits.ddd.query.filters.predicates.AllOf
 
 fun filterTest(block: UserProperties.() -> Unit) =
     UserProperties.block()

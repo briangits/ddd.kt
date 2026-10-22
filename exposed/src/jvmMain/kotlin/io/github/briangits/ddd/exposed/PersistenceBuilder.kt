@@ -1,0 +1,40 @@
+package io.github.briangits.ddd.exposed
+
+import io.github.briangits.ddd.exposed.repository.AnyRepository
+import io.github.briangits.ddd.exposed.repository.RepositoryImplementation
+import io.github.briangits.ddd.repository.Repository
+import kotlinx.coroutines.CoroutineDispatcher
+import org.jetbrains.exposed.v1.jdbc.Database
+import kotlin.reflect.KClass
+
+interface PersistenceBuilder {
+    fun <T : Repository<*, *>> bind(
+        type: KClass<T>,
+        implementation: RepositoryImplementation<T>
+    )
+}
+
+inline fun <reified T : Repository<*, *>> PersistenceBuilder.bind(
+    noinline implementation: RepositoryImplementation<T>
+) = bind(T::class, implementation)
+
+internal class PersistenceBuilderImpl(
+    private val database: Database,
+    private val dispatcher: CoroutineDispatcher,
+    block: PersistenceBuilder.() -> Unit
+) : PersistenceBuilder {
+    private val registry = mutableMapOf<KClass<*>, RepositoryImplementation<AnyRepository>>()
+
+    init {
+        block()
+    }
+
+    override fun <T : Repository<*, *>> bind(
+        type: KClass<T>,
+        implementation: RepositoryImplementation<T>
+    ) {
+        registry[type] = implementation
+    }
+
+    fun build(): ExposedPersistence = ExposedPersistence(database, registry, dispatcher)
+}

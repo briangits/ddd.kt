@@ -12,7 +12,7 @@ for `Persistence`, `Transaction`, and `Repository`.
 Add the Exposed adapter to your project:
 
 ```kotlin
-implementation("io.github.briangits.persistence:exposed:<version>")
+implementation("io.github.briangits.ddd:exposed:<version>")
 ```
 
 You'll also need the appropriate Exposed JDBC and database driver dependencies.
@@ -26,8 +26,8 @@ Create an `ExposedPersistence` instance with an Exposed `Database`
 and bind your repository implementations.
 
 ```kotlin
-import io.github.briangits.persistence.Persistence
-import io.github.briangits.persistence.exposed.ExposedPersistence
+import io.github.briangits.ddd.Persistence
+import io.github.briangits.ddd.exposed.ExposedPersistence
 import org.jetbrains.exposed.v1.jdbc.Database
 
 val database = Database.connect(
@@ -52,7 +52,7 @@ Domain models need to be mapped to the database's persistence models.
 For example, given the following domain model:
 
 ```kotlin
-import io.github.briangits.persistence.repository.Entity
+import io.github.briangits.ddd.repository.Entity
 import kotlin.uuid.Uuid
 
 data class User(
@@ -94,8 +94,8 @@ To implement a repository, extend `ExposedRepository` and provide:
 and how domain properties map to database columns.
 
 ```kotlin
-import io.github.briangits.persistence.exposed.repository.EntityOperator
-import io.github.briangits.persistence.exposed.relations.dsl.by
+import io.github.briangits.ddd.exposed.repository.EntityOperator
+import io.github.briangits.ddd.exposed.relations.dsl.by
 
 object UserEntityOperator : EntityOperator<User, UserProperties> {
     override val properties = properties { UserProperties }
@@ -127,8 +127,8 @@ table columns.
 Now implement the repository interface defined by the domain layer:
 
 ```kotlin
-import io.github.briangits.persistence.exposed.repository.ExposedRepository
-import io.github.briangits.persistence.exposed.transaction.TransactionControl
+import io.github.briangits.ddd.exposed.repository.ExposedRepository
+import io.github.briangits.ddd.exposed.transaction.TransactionControl
 
 class ExposedUserRepository(
     transaction: TransactionControl
@@ -164,15 +164,15 @@ suspend fun createUser(persistence: Persistence, user: User) {
 Putting everything together:
 
 ```kotlin
-import io.github.briangits.persistence.Persistence
-import io.github.briangits.persistence.exposed.ExposedPersistence
-import io.github.briangits.persistence.exposed.repository.EntityOperator
-import io.github.briangits.persistence.exposed.repository.ExposedRepository
-import io.github.briangits.persistence.exposed.transaction.TransactionControl
-import io.github.briangits.persistence.exposed.relations.dsl.by
-import io.github.briangits.persistence.repository.Entity
-import io.github.briangits.persistence.repository.EntityProperties
-import io.github.briangits.persistence.repository.Repository
+import io.github.briangits.ddd.Persistence
+import io.github.briangits.ddd.exposed.ExposedPersistence
+import io.github.briangits.ddd.exposed.repository.EntityOperator
+import io.github.briangits.ddd.exposed.repository.ExposedRepository
+import io.github.briangits.ddd.exposed.transaction.TransactionControl
+import io.github.briangits.ddd.exposed.relations.dsl.by
+import io.github.briangits.ddd.repository.Entity
+import io.github.briangits.ddd.repository.EntityProperties
+import io.github.briangits.ddd.repository.Repository
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.Database
 import kotlin.uuid.Uuid
@@ -267,7 +267,7 @@ data class User(
 Define the properties with an exploded object:
 
 ```kotlin
-import io.github.briangits.persistence.query.properties.explode
+import io.github.briangits.ddd.query.properties.explode
 
 object UserProperties : EntityProperties<User, Uuid>() {
     object name : explode<User, PersonName>(User::name) {
@@ -294,7 +294,7 @@ object Users : Table("users") {
 Map the exploded properties in the entity operator:
 
 ```kotlin
-import io.github.briangits.persistence.query.properties.explode
+import io.github.briangits.ddd.query.properties.explode
 
 object UserEntityOperator : EntityOperator<User, UserProperties> {
     override val properties = properties { UserProperties }

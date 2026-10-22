@@ -1,7 +1,7 @@
 package domain.user
 
-import io.github.briangits.persistence.query.properties.ExplodedProperty
-import io.github.briangits.persistence.repository.EntityProperties
+import io.github.briangits.ddd.query.properties.ExplodedProperty
+import io.github.briangits.ddd.repository.EntityProperties
 import kotlin.uuid.Uuid
 
 object UserProperties : EntityProperties<User, Uuid>() {

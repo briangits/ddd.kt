@@ -3,8 +3,8 @@ package infrastructure.user
 import domain.user.User
 import domain.user.UserProperties
 import domain.user.UserRepository
-import io.github.briangits.persistence.exposed.repository.ExposedRepository
-import io.github.briangits.persistence.exposed.transaction.TransactionControl
+import io.github.briangits.ddd.exposed.repository.ExposedRepository
+import io.github.briangits.ddd.exposed.transaction.TransactionControl
 
 class ExposedUserRepository(
     transaction: TransactionControl

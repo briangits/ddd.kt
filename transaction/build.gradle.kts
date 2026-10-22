@@ -16,5 +16,5 @@ kotlin {
 
 library {
     name = "transaction"
-    description = "Transaction API for persistence.kt"
+    description = "Transaction API for ddd.kt"
 }

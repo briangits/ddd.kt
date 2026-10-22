@@ -1,6 +1,6 @@
 
 import infrastructure.user.Users
-import io.github.briangits.persistence.exposed.transaction.TransactionControl
+import io.github.briangits.ddd.exposed.transaction.TransactionControl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.runTest
 import org.h2.Driver

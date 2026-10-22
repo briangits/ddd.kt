@@ -1,14 +1,14 @@
-<h1 align="center">persistence.kt</h1>
+<h1 align="center">ddd.kt</h1>
 
-<p align="center">A persistence abstraction layer for Kotlin Multiplatform.</p>
+<p align="center">DDD for Kotlin.</p>
 
 [![Kotlin](https://img.shields.io/badge/kotlin-2.4.0-blue.svg?logo=kotlin)](https://kotlinlang.org)
-![Maven Central](https://img.shields.io/maven-central/v/io.github.briangits.persistence/core?color=blue)
-![CI](https://github.com/briangits/persistence.kt/actions/workflows/ci.yaml/badge.svg)
+![Maven Central](https://img.shields.io/maven-central/v/io.github.briangits.ddd/core?color=blue)
+![CI](https://github.com/briangits/ddd.kt/actions/workflows/ci.yaml/badge.svg)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 
 
-`persistence.kt` provides a unified, DDD-oriented API for querying and persisting data using entities.
+`ddd.kt` provides a unified, and simple API for building our domains.
 
 ---
 
@@ -18,7 +18,7 @@
 
 ```kotlin
 dependencies {
-    implementation("io.github.briangits.persistence:core:<version>")
+    implementation("io.github.briangits.ddd:core:<version>")
 }
 ```
 
@@ -26,7 +26,7 @@ dependencies {
 
 ```kotlin
 import kotlin.uuid.Uuid
-import io.github.briangits.persistence.repository.Entity
+import io.github.briangits.ddd.repository.Entity
 
 data class User(
     override val id: Uuid = Uuid.random(),
@@ -38,7 +38,7 @@ data class User(
 Define properties to be used in queries when interacting with `User`:
 
 ```kotlin
-import io.github.briangits.persistence.repository.EntityProperties
+import io.github.briangits.ddd.repository.EntityProperties
 
 object UserProperties : EntityProperties<User, Uuid>() {
     val name by User::name
@@ -49,7 +49,7 @@ object UserProperties : EntityProperties<User, Uuid>() {
 Then define a repository:
 
 ```kotlin
-import io.github.briangits.persistence.repository.Repository
+import io.github.briangits.ddd.repository.Repository
 
 interface UserRepository : Repository<User, UserProperties>
 ```
@@ -57,8 +57,8 @@ interface UserRepository : Repository<User, UserProperties>
 ### 3. Saving and querying entities
 
 ```kotlin
-import io.github.briangits.persistence.Persistence
-import io.github.briangits.persistence.repository.get
+import io.github.briangits.ddd.Persistence
+import io.github.briangits.ddd.repository.get
 
 suspend fun registerUser(persistence: Persistence) = persistence.transaction {
     val users = get<UserRepository>()
@@ -109,7 +109,7 @@ For nested values, define an `explode` object in your properties class.
 For example, if `User.name` is a `PersonName` with `first` and `last` properties:
 
 ```kotlin
-import io.github.briangits.persistence.query.properties.explode
+import io.github.briangits.ddd.query.properties.explode
 
 object UserProperties : EntityProperties<User, Uuid>() {
     object name : explode<User, PersonName>(User::name) {
@@ -145,7 +145,7 @@ Request a page with a size and offset. The result contains `items`, `total`,
 and the pagination metadata.
 
 ```kotlin
-import io.github.briangits.persistence.repository.pagination.Pagination
+import io.github.briangits.ddd.repository.pagination.Pagination
 
 val page = users.findAll(page = Pagination(size = 20, offset = 0)) {
     email endsWith "@company.com"
@@ -168,16 +168,16 @@ Use `UnitOfWork` to group repository operations and register hooks around commit
 
 ```kotlin
 dependencies {
-    implementation("io.github.briangits.persistence:uow:<version>")
+    implementation("io.github.briangits.ddd:uow:<version>")
 }
 ```
 
 Define a unit of work with the repositories an operation needs:
 
 ```kotlin
-import io.github.briangits.persistence.repository.get
-import io.github.briangits.persistence.transaction.Transaction
-import io.github.briangits.persistence.uow.UnitOfWork
+import io.github.briangits.ddd.repository.get
+import io.github.briangits.ddd.transaction.Transaction
+import io.github.briangits.ddd.uow.UnitOfWork
 
 class UserUoW(transaction: Transaction) : UnitOfWork<UserUoW>(transaction) {
     val users = get<UserRepository>()
@@ -187,8 +187,8 @@ class UserUoW(transaction: Transaction) : UnitOfWork<UserUoW>(transaction) {
 Create a factory for your unit of work:
 
 ```kotlin
-import io.github.briangits.persistence.Persistence
-import io.github.briangits.persistence.uow.UoWFactory
+import io.github.briangits.ddd.Persistence
+import io.github.briangits.ddd.uow.UoWFactory
 
 val userUoW = UoWFactory(persistence) { transaction -> UserUoW(transaction) }
 ```

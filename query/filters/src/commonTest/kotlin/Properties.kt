@@ -1,6 +1,6 @@
 
-import io.github.briangits.persistence.query.properties.Properties
-import io.github.briangits.persistence.query.properties.explode
+import io.github.briangits.ddd.query.properties.Properties
+import io.github.briangits.ddd.query.properties.explode
 
 data class PersonName(val first: String, val last: String)
 

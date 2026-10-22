@@ -13,7 +13,7 @@ plugins {
     alias(libutils.plugins.mavenPublish) apply false
 }
 
-group = "io.github.briangits.persistence"
+group = "io.github.briangits.ddd"
 version = "0.4.0"
 
 allprojects {

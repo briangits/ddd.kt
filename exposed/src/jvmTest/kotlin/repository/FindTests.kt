@@ -5,9 +5,9 @@ import createDB
 import domain.user.PersonName
 import domain.user.User
 import infrastructure.user.ExposedUserRepository
-import io.github.briangits.persistence.query.dsl.where
-import io.github.briangits.persistence.query.filters.eq
-import io.github.briangits.persistence.repository.save
+import io.github.briangits.ddd.query.dsl.where
+import io.github.briangits.ddd.query.filters.eq
+import io.github.briangits.ddd.repository.save
 import org.junit.Test
 import runInTransaction
 import kotlin.test.assertEquals

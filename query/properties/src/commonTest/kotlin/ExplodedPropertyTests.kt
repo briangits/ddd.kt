@@ -1,5 +1,5 @@
 
-import io.github.briangits.persistence.query.properties.ExplodedProperty
+import io.github.briangits.ddd.query.properties.ExplodedProperty
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

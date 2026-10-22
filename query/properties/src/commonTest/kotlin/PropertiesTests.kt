@@ -1,4 +1,4 @@
-import io.github.briangits.persistence.query.properties.Properties
+import io.github.briangits.ddd.query.properties.Properties
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

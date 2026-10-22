@@ -1,6 +1,6 @@
 package domain.user
 
-import io.github.briangits.persistence.repository.Entity
+import io.github.briangits.ddd.repository.Entity
 import kotlin.uuid.Uuid
 
 data class User(
