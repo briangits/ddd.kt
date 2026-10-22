@@ -1,5 +1,5 @@
-import io.github.briangits.ddd.query.properties.Property
-import io.github.briangits.ddd.query.properties.child
+import io.github.briangits.ddd.query.properties.property.Property
+import io.github.briangits.ddd.query.properties.property.child
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals

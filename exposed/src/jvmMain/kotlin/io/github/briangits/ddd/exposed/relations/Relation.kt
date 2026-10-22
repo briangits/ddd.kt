@@ -1,6 +1,6 @@
 package io.github.briangits.ddd.exposed.relations
 
-import io.github.briangits.ddd.query.properties.Property
+import io.github.briangits.ddd.query.properties.property.Property
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.statements.UpsertStatement
 

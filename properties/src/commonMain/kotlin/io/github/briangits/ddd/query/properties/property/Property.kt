@@ -1,8 +1,8 @@
-package io.github.briangits.ddd.query.properties
+package io.github.briangits.ddd.query.properties.property
 
 import kotlin.reflect.KProperty1
 
-class Property<in R : Any, out T>(
+open class Property<in R : Any, out T>(
     internal val path: List<KProperty1<*, *>>,
     private val getter: (R) -> T
 ) {

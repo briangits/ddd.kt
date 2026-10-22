@@ -1,7 +1,7 @@
 package io.github.briangits.ddd.repository
 
 import io.github.briangits.ddd.query.properties.Properties
-import io.github.briangits.ddd.query.properties.Property
+import io.github.briangits.ddd.query.properties.property.Property
 
 private fun <T : Entity<ID>, ID : Any> entityId(): Property<T, ID> =
     Property(Entity<ID>::id)

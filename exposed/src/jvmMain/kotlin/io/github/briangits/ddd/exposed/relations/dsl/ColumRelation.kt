@@ -2,7 +2,7 @@ package io.github.briangits.ddd.exposed.relations.dsl
 
 import io.github.briangits.ddd.exposed.relations.ColumnRelation
 import io.github.briangits.ddd.exposed.relations.Relations
-import io.github.briangits.ddd.query.properties.Property
+import io.github.briangits.ddd.query.properties.property.Property
 import org.jetbrains.exposed.v1.core.Column
 
 class ColumnRelationBuilder<T : Any, V, C>(

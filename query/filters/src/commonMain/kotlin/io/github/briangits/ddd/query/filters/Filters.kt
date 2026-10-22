@@ -26,7 +26,7 @@ import io.github.briangits.ddd.query.filters.predicates.operators.string.Contain
 import io.github.briangits.ddd.query.filters.predicates.operators.string.EndsWith
 import io.github.briangits.ddd.query.filters.predicates.operators.string.Matches
 import io.github.briangits.ddd.query.filters.predicates.operators.string.StartsWith
-import io.github.briangits.ddd.query.properties.Property
+import io.github.briangits.ddd.query.properties.property.Property
 
 @Suppress("INVISIBLE_REFERENCE", "INVISIBLE_MEMBER")
 private typealias Exact = kotlin.internal.Exact
