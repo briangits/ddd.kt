@@ -4,3 +4,11 @@ plugins {
 }
 
 group = "${rootProject.group}.aggregate"
+
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            api(projects.entity)
+        }
+    }
+}
