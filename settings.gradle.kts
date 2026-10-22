@@ -31,6 +31,8 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "ddd-kt"
 
+include(":entity")
+
 include(":query")
 include(":query:properties")
 include(":query:filters")
