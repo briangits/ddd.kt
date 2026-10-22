@@ -2,7 +2,7 @@
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.query.properties)
+            implementation(projects.properties)
         }
 
         commonTest.dependencies {

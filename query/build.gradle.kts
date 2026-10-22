@@ -16,7 +16,7 @@ subprojects {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            api(projects.query.properties)
+            api(projects.properties)
             api(projects.query.filters)
             api(projects.query.pagination)
         }

@@ -1,4 +1,11 @@
 
+plugins {
+    id("conventions.library.kmp")
+
+    // Publishing
+    id("conventions.publishing")
+}
+
 kotlin {
     sourceSets {
         commonTest.dependencies {
